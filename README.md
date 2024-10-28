@@ -1,4 +1,4 @@
-# DSPNebulaDocker
+# DSPNebulaDocker (Fix)
 An attempt at getting Dyson Sphere Program Nebula Mod working on Docker using Wine.
 
 I am no way a Docker expert or know how to use Wine. I cobbled together this script that does run a DSP Headless Client within Pter (https://pterodactyl.io)
