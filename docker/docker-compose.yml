@@ -1,0 +1,16 @@
+services:
+  dsp:
+    container_name: dyson-sphere-project
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      STEAM_USER: ${STEAM_USER}
+      STEAM_PASS: ${STEAM_PASS}
+      STEAM_AUTH: ${STEAM_AUTH}
+      SRCDS_APPID: ${SRCDS_APPID-1366540}
+      ADDITIONAL_WINETRICKS: ${ADDITIONAL_WINETRICKS-}
+      AUTO_UPDATE: ${AUTO_UPDATE-0}
+      WINEDEBUG: ${WINEDEBUG--all}
+      ADDITIONAL_PLUGINS: ${ADDITIONAL_PLUGINS-}
+      WINDOWS_INSTALL: ${WINDOWS_INSTALL-1}
