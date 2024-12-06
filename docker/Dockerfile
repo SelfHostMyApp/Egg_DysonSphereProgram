@@ -9,6 +9,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN useradd -m -d /home/container -s /bin/bash container && \
     ln -s /home/container/ /nonexistent
 
+COPY ./dsp/ /usr/local/games/dsp/
+
+RUN chown -R container:container /usr/local/games
+
 # Set environment variables
 ENV USER=container \
     HOME=/home/container \
@@ -30,7 +34,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     software-properties-common \
-    wget \
+    wget jq \
     gnupg2 \
     ca-certificates \
     gcc g++ libgcc1 libc++-dev gdb libc6 git curl tar zip unzip \
@@ -39,7 +43,7 @@ RUN dpkg --add-architecture i386 && \
     icu-devtools libunwind8 libssl-dev sqlite3 libsqlite3-dev \
     libmariadbclient-dev-compat libduktape205 locales ffmpeg \
     libz-dev rapidjson-dev tzdata libevent-dev libzip4 \
-    libprotobuf23 nano vim p7zip psmisc python3 \
+    libprotobuf23 nano vim p7zip psmisc  \
     xvfb \
     x11-apps \
     xorg && \ 
@@ -84,13 +88,22 @@ RUN mkdir -p /usr/local/games/steamcmd && \
     tar -xvzf /tmp/steamcmd.tar.gz -C /usr/local/games/steamcmd && \
     chown -R container:container /usr/local/games && \
     chmod +x /usr/local/games/steamcmd/steamcmd.sh && \
-    rm /tmp/steamcmd.tar.gz 
+    rm /tmp/steamcmd.tar.gz && \
+    /usr/local/games/steamcmd/steamcmd.sh +login anonymous +quit && \
+    mkdir -p /usr/local/games/steamcmd/dsp/.steam/sdk32 && \
+    cp -v /usr/local/games/steamcmd/linux32/steamclient.so /usr/local/games/steamcmd/dsp/.steam/sdk32/steamclient.so && \
+    mkdir -p /usr/local/games/steamcmd/dsp/.steam/sdk64 && \
+    cp -v /usr/local/games/steamcmd/linux64/steamclient.so /usr/local/games/steamcmd/dsp/.steam/sdk64/steamclient.so
 
 COPY ./entry-point.sh /entry-point.sh
 RUN chmod +x /entry-point.sh
 
 COPY ./install-script.sh /install-script.sh
 RUN chmod +x /install-script.sh
+
+RUN echo $(uuidgen) > /etc/machine-id
+
+
 
 USER container
 WORKDIR /home/container

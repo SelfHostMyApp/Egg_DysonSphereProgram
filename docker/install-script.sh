@@ -78,11 +78,8 @@ On_IPurple='\033[0;105m' # Purple
 On_ICyan='\033[0;106m'   # Cyan
 On_IWhite='\033[0;107m'  # White
 
-apt update
-apt install psmisc -y
-
-export HOME=~/dsp
-BEPINEX_PLUGINS=("nebula/NebulaMultiplayerMod" "nebula/NebulaMultiplayerModApi" "PhantomGamers/IlLine" "CommonAPI/CommonAPI" "starfi5h/BulletTime" "xiaoye97/LDBTool" "CommonAPI/DSPModSave")
+export HOME=/usr/local/games
+BEPINEX_PLUGINS=("nebula/NebulaMultiplayerMod" "nebula/NebulaMultiplayerModApi" "PhantomGamers/IlLine" "starfi5h/BulletTime") # "CommonAPI/CommonAPI" "xiaoye97/LDBTool" "CommonAPI/DSPModSave"
 
 if [[ ! -z "$ADDITIONAL_PLUGINS" ]]; then
     read -a tmpArray <<<$ADDITIONAL_PLUGINS
@@ -171,30 +168,21 @@ else
 fi
 
 ## install game using steamcmd
-/usr/local/games/steamcmd/steamcmd.sh +force_install_dir $HOME +login ${STEAM_USER} ${STEAM_PASS} ${STEAM_AUTH} +@sSteamCmdForcePlatformType windows +app_update ${SRCDS_APPID} validate +quit
-
-## set up 32 bit libraries
-mkdir -p $HOME/.steam/sdk32
-cp -v linux32/steamclient.so ../.steam/sdk32/steamclient.so
-
-## set up 64 bit libraries
-mkdir -p $HOME/.steam/sdk64
-cp -v linux64/steamclient.so ../.steam/sdk64/steamclient.so
-cd $HOME
+/usr/local/games/steamcmd/steamcmd.sh +force_install_dir $HOME/dsp +login ${STEAM_USER} ${STEAM_PASS} ${STEAM_AUTH} +@sSteamCmdForcePlatformType windows +app_update ${SRCDS_APPID} validate +quit
 
 ## Install Goldberg Steam Emu
 echo "## Installing Goldberg Steam Emu"
 rm -f $HOME/DSPGAME_Data/Plugins/steam_api64.dll
-curl -L "https://gitlab.com/Mr_Goldberg/goldberg_emulator/-/jobs/2987292049/artifacts/raw/steam_api64.dll" --output "$HOME/DSPGAME_Data/Plugins/steam_api64.dll" 2>/dev/null
+curl -L "https://gitlab.com/Mr_Goldberg/goldberg_emulator/-/jobs/2987292049/artifacts/raw/steam_api64.dll" --output "$HOME/dsp/DSPGAME_Data/Plugins/steam_api64.dll" 2>/dev/null
 echo "##  -> Applying Settings"
-mkdir -p $HOME/DSPGAME_Data/Plugins/steam_settings
-touch $HOME/DSPGAME_Data/Plugins/steam_settings/disable_networking.txt
-echo "1366540" >$HOME/DSPGAME_Data/Plugins/steam_appid.txt
+mkdir -p $HOME/dsp/DSPGAME_Data/Plugins/steam_settings
+touch $HOME/dsp/DSPGAME_Data/Plugins/steam_settings/disable_networking.txt
+echo "1366540" >$HOME/dsp/DSPGAME_Data/Plugins/steam_appid.txt
 echo "##  -> Done"
 
-## Install BepInEx from GitHub
+# ## Install BepInEx from GitHub
 LATEST_JSON=$(curl --silent "https://api.github.com/repos/BepInEx/BepInEx/releases/latest")
-DOWNLOAD_LINK=$(echo ${LATEST_JSON} | jq .assets | jq -r .[].browser_download_url | grep -i x64)
+DOWNLOAD_LINK=$(echo ${LATEST_JSON} | jq .assets | jq -r .[].browser_download_url | grep -i win_x64)
 FILE_NAME=$(echo "${DOWNLOAD_LINK##*/}")
 echo "## Attempting to download BepInEx from $DOWNLOAD_LINK"
 curl -OL $DOWNLOAD_LINK >/dev/null
@@ -202,15 +190,15 @@ echo "## Installing BepInEx"
 unzip -o "./$FILE_NAME" >/dev/null
 echo "##   -> Done"
 rm -fR $FILE_NAME
-mkdir -p $HOME/BepInEx/plugins
-mkdir -p $HOME/BepInEx/patchers
+mkdir -p $HOME/dsp/BepInEx/plugins
+mkdir -p $HOME/dsp/BepInEx/patchers
 
 #Download Required Mods
 echo "## Downloading BepInEx Plugins..."
 mkdir -p $HOME/temp
 cd $HOME/temp
 for i in ${!BEPINEX_PLUGINS[@]}; do
-    TS_ASSET=$(curl --silent "https://dsp.thunderstore.io/api/experimental/package/${BEPINEX_PLUGINS[$i]}/")
+    TS_ASSET=$(curl --silent "https://thunderstore.io/api/experimental/package/${BEPINEX_PLUGINS[$i]}/")
     TS_ASSET_VERSION=$(echo $TS_ASSET | jq .latest.version_number | sed 's/"//g')
     TS_ASSET_NAME=$(echo $TS_ASSET | jq .name | sed 's/"//g')
     TS_DL_URL=$(echo $TS_ASSET | jq .latest.download_url | sed 's/"//g')
@@ -226,25 +214,25 @@ for i in ${!BEPINEX_PLUGINS[@]}; do
     CWD="$HOME/temp/$TS_ASSET_NAME"
     echo "##  -> Installing"
     if [ -d "$CWD/plugins" ]; then
-        mkdir -p "$HOME/BepInEx/plugins/$TS_ASSET_NAME"
-        cp -fr $CWD/plugins/* "$HOME/BepInEx/plugins/$TS_ASSET_NAME/"
+        mkdir -p "$HOME/dsp/BepInEx/plugins/$TS_ASSET_NAME"
+        cp -fr $CWD/plugins/* "$HOME/dsp/BepInEx/plugins/$TS_ASSET_NAME/"
     else
-        cp -fr $CWD $HOME/BepInEx/plugins
+        cp -fr $CWD $HOME/dsp/BepInEx/plugins
     fi
 
     if [ -d "$CWD/patchers" ]; then
         echo "##  -> Installing Patcher"
-        mkdir -p "$HOME/BepInEx/patchers/$TS_ASSET_NAME"
-        cp -fr $CWD/patchers/* "$HOME/BepInEx/patchers/$TS_ASSET_NAME/"
+        mkdir -p "$HOME/dsp/BepInEx/patchers/$TS_ASSET_NAME"
+        cp -fr $CWD/patchers/* "$HOME/dsp/BepInEx/patchers/$TS_ASSET_NAME/"
     fi
 
     echo "##  -> Done"
 done
 
-echo "1366540" >$HOME/steam_appid.txt
-mkdir -p $HOME/Dyson\ Sphere\ Program/Achievement
-mkdir -p $HOME/Dyson\ Sphere\ Program/Blueprint
-mkdir -p $HOME/Dyson\ Sphere\ Program/Save
+echo "1366540" >$HOME/dsp/steam_appid.txt
+mkdir -p $HOME/dsp/Achievement
+mkdir -p $HOME/dsp/Blueprint
+mkdir -p $HOME/dsp/Save
 
 rm -rf $HOME/temp
 

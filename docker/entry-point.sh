@@ -15,8 +15,6 @@ echo "Wine Prefix: $WINEPREFIX"
 # Ensure Wine prefix is properly initialized
 wine wineboot -i
 
-# Optional: Additional Wine configuration if needed
-# This is where you can add specific game or application setup steps
 if [[ ! -z "$ADDITIONAL_WINETRICKS" ]]; then
         echo "Running additional winetricks: $ADDITIONAL_WINETRICKS"
         for trick in $ADDITIONAL_WINETRICKS; do

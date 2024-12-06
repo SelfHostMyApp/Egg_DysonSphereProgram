@@ -1,6 +1,6 @@
 services:
   dsp:
-    container_name: dyson-sphere-project
+    container_name: dyson-sphere-program
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,3 +14,4 @@ services:
       WINEDEBUG: ${WINEDEBUG--all}
       ADDITIONAL_PLUGINS: ${ADDITIONAL_PLUGINS-}
       WINDOWS_INSTALL: ${WINDOWS_INSTALL-1}
+      STARTUP: ${STARTUP-winetricks sound=disabled; export WINEARCH="win64" && WINEDLLOVERRIDES="mscoree=n,b;mshtml=n,b;winhttp=n,b" && wine /usr/local/games/dsp/DSPGame.exe -batchmode -nographics -server -load-latest}
