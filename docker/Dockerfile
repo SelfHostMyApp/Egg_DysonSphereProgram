@@ -56,7 +56,7 @@ RUN dpkg --add-architecture i386 && \
     wget -q -O /usr/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks && \
     chmod +x /usr/bin/winetricks && \
     # Xvfb setup
-    apt-get install -y xvfb x11-apps xauth && \
+    apt-get install -y xvfb x11-apps xauth mesa-utils procps && \
     # Cleanup to reduce image size
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -80,7 +80,8 @@ ENV PATH="$PROTON/bin:$PATH" \
     LD_LIBRARY_PATH="$PROTON/lib:$LD_LIBRARY_PATH" \
     WINESERVER="$PROTON/bin/wineserver" \
     WINELOADER="$PROTON/bin/wine" \
-    WINEDLLPATH="$PROTON/lib/wine"
+    WINEDLLPATH="$PROTON/lib/wine" \
+    WINEDLLOVERRIDES="mscoree,mshtml=;winemenubuilder.exe=d" 
 
 # SteamCMD installation
 RUN mkdir -p /usr/local/games/steamcmd && \
@@ -90,10 +91,10 @@ RUN mkdir -p /usr/local/games/steamcmd && \
     chmod +x /usr/local/games/steamcmd/steamcmd.sh && \
     rm /tmp/steamcmd.tar.gz && \
     /usr/local/games/steamcmd/steamcmd.sh +login anonymous +quit && \
-    mkdir -p /usr/local/games/steamcmd/dsp/.steam/sdk32 && \
-    cp -v /usr/local/games/steamcmd/linux32/steamclient.so /usr/local/games/steamcmd/dsp/.steam/sdk32/steamclient.so && \
-    mkdir -p /usr/local/games/steamcmd/dsp/.steam/sdk64 && \
-    cp -v /usr/local/games/steamcmd/linux64/steamclient.so /usr/local/games/steamcmd/dsp/.steam/sdk64/steamclient.so
+    mkdir -p /usr/local/games/dsp/.steam/sdk32 && \
+    cp -v /usr/local/games/steamcmd/linux32/steamclient.so /usr/local/games/dsp/.steam/sdk32/steamclient.so && \
+    mkdir -p /usr/local/games/dsp/.steam/sdk64 && \
+    cp -v /usr/local/games/steamcmd/linux64/steamclient.so /usr/local/games/dsp/.steam/sdk64/steamclient.so
 
 COPY ./entry-point.sh /entry-point.sh
 RUN chmod +x /entry-point.sh
@@ -103,7 +104,7 @@ RUN chmod +x /install-script.sh
 
 RUN echo $(uuidgen) > /etc/machine-id
 
-
+RUN chown -R container:container /tmp && chmod 1777 /tmp
 
 USER container
 WORKDIR /home/container

@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    shm_size: 1gb
+    ports:
+      - 8469:8469
     environment:
       STEAM_USER: ${STEAM_USER}
       STEAM_PASS: ${STEAM_PASS}
@@ -11,7 +14,7 @@ services:
       SRCDS_APPID: ${SRCDS_APPID-1366540}
       ADDITIONAL_WINETRICKS: ${ADDITIONAL_WINETRICKS-}
       AUTO_UPDATE: ${AUTO_UPDATE-0}
-      WINEDEBUG: ${WINEDEBUG--all}
+      WINEDEBUG: ${WINEDEBUG-}
       ADDITIONAL_PLUGINS: ${ADDITIONAL_PLUGINS-}
       WINDOWS_INSTALL: ${WINDOWS_INSTALL-1}
       STARTUP: ${STARTUP-winetricks sound=disabled; export WINEARCH="win64" && WINEDLLOVERRIDES="mscoree=n,b;mshtml=n,b;winhttp=n,b" && wine /usr/local/games/dsp/DSPGame.exe -batchmode -nographics -server -load-latest}

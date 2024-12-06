@@ -33,14 +33,37 @@ else
         echo -e "Not updating game server as auto update was set to 0. Starting Server"
 fi
 
-# Start Xvfb if enabled
+export DISPLAY=:99
 if [[ $XVFB == 1 ]]; then
-        Xvfb :0 -screen 0 ${DISPLAY_WIDTH}x${DISPLAY_HEIGHT}x${DISPLAY_DEPTH} &
+        # Kill any existing Xvfb processes
+        pkill Xvfb
+
+        # Start Xvfb with more diagnostic output
+        Xvfb :99 -screen 0 ${DISPLAY_WIDTH}x${DISPLAY_HEIGHT}x${DISPLAY_DEPTH} -ac +extension GLX +render -noreset 2>&1 &
+        XVFB_PID=$!
+
+        # Wait and verify Xvfb startup
+        sleep 3
+        if kill -0 $XVFB_PID 2>/dev/null; then
+                echo "Xvfb started successfully on display :99"
+        else
+                echo "Error: Xvfb failed to start"
+                exit 1
+        fi
 fi
+
+# Comprehensive X Server Diagnostics
+echo "X Server Diagnostics:"
+echo "DISPLAY: $DISPLAY"
+echo "Xvfb Status: $(pgrep Xvfb || echo 'Not Running')"
+echo "X Server Permissions: $(ls -l /tmp/.X11-unix || echo 'No X socket found')"
+echo "X11 Xauth List: $(xauth list)"
+echo "Xvfb Process Details:"
+ps aux | grep [X]vfb
 
 # Replace Startup Variables
 MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
 echo ":/home/container$ ${MODIFIED_STARTUP}"
-
+wine winecfg
 # Run the Server
 eval ${MODIFIED_STARTUP}
